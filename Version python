@@ -1,1 +1,280 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+from random import randrange
 
+
+def lectureImage(Img):
+    Img = Image.open(Img).convert("L")
+    return np.array(Img)
+
+
+# définir l'image comme damier
+def image_noir_blanche(h, l):
+    Img = np.ones((h, l))
+    for i in range(h):
+        for j in range(l):
+            Img[i, j] = (i + j) % 2
+    return Img
+
+
+# inverser l'image
+def negatif(Img):
+    return 1 - Img
+
+
+# fonction de luminance
+def luminance(Img):
+    h = len(Img)
+    l = len(Img[0])
+    somme = 0
+    for i in range(h):
+        for j in range(l):
+            somme += Img[i, j]
+    moyenne = somme / (h * l)
+    return moyenne
+
+
+# affichage
+def afficher_image(Img):
+    if len(Img.shape) == 3 and Img.shape[0] == 3:
+        plt.imshow(np.transpose(Img, (1, 2, 0)))
+    else:
+        plt.imshow(Img, cmap='gray')
+    plt.title("Image blanche_noir")
+    plt.axis("off")
+    plt.show()
+
+
+# Retourne le contraste d'une image
+def constrast(Img):
+    h = len(Img)
+    l = len(Img[0])
+    lum = luminance(Img)
+
+    s = 0
+    for i in range(h):
+        for j in range(l):
+            s += (Img[i, j] - lum) ** 2
+    return s / (h * l)
+
+
+# Retourne la valeur maximale d'un pixel dans l'image Img
+def profondeur(Img):
+    maxi = Img[0][0]
+    for i in range(len(Img)):
+        for j in range(len(Img[0])):
+            if Img[i, j] > maxi:
+                maxi = Img[i, j]
+    return maxi
+
+
+def Ouvrir(A):
+    return lectureImage(A)
+
+
+def inverser(img):
+    p = 255
+    return p - img
+
+
+# Symétrie verticale (gauche-droite)
+def flipH(img):
+    L = len(img)
+    C = len(img[0])
+
+    for i in range(L):
+        for j in range(C // 2):
+            t = img[i][j]
+            img[i][j] = img[i][C - 1 - j]
+            img[i][C - 1 - j] = t
+
+    return img
+
+
+# Poser verticalement img1 au-dessus de img2
+def poserV(img1, img2):
+    L1 = len(img1)
+    C1 = len(img1[0])
+    L2 = len(img2)
+    C2 = len(img2[0])
+
+    if C1 != C2:
+        return None
+
+    resultat = np.zeros((L1 + L2, C1))
+
+    for i in range(L1):
+        for j in range(C1):
+            resultat[i][j] = img1[i][j]
+
+    for i in range(L2):
+        for j in range(C2):
+            resultat[i + L1][j] = img2[i][j]
+
+    return resultat
+
+
+# Poser horizontalement img2 à droite de img1
+def poserH(img1, img2):
+    L1 = len(img1)
+    C1 = len(img1[0])
+    L2 = len(img2)
+    C2 = len(img2[0])
+
+    if L1 != L2:
+        return None
+
+    resultat = np.zeros((L1, C1 + C2))
+
+    for i in range(L1):
+        for j in range(C1):
+            resultat[i][j] = img1[i][j]
+
+        for j in range(C2):
+            resultat[i][j + C1] = img2[i][j]
+
+    return resultat
+
+
+def initImageRGB(n, m):
+    imageRGB = np.zeros((3, n, m), dtype=int)
+    for c in range(3):
+        for i in range(n):
+            for j in range(m):
+                imageRGB[c, i, j] = randrange(256)
+    return imageRGB
+
+
+#  symétrie horizontale (haut-bas)
+def symetrie_horizontale(img):
+    return img[::-1, :]
+
+
+# symétrie verticale (gauche-droite)
+def symetrie_verticale(img):
+    return img[:, ::-1]
+
+
+def grayscale(imageRGB):
+    m, n = imageRGB.shape[1], imageRGB.shape[2]
+    gris = np.zeros((m, n), dtype=int)
+
+    for i in range(m):
+        for j in range(n):
+            R = imageRGB[0, i, j]
+            G = imageRGB[1, i, j]
+            B = imageRGB[2, i, j]
+            gris[i, j] = (max(R, G, B) + min(R, G, B)) // 2
+
+    return gris
+
+
+
+# menu
+def menu():
+    print("1. Ouvrir une image")
+    print("2. Créer une image noire et blanche")
+    print("3. construit le négatif de l'image donnée")
+    print("4. ouvrir l'image A")
+    print("5. Inverser une image")
+    print("6. Symétrie d’axe vertical passant par le milieu de l’image")
+    print("7. Poser verticalement deux images")
+    print("8. Poser horizontalement deux images")
+    print("9. l'affichage des valeurs du matrice  M de l'images RGB")
+    print("10. Initialiser et renvoyer une image RGB")
+    print("11. Symétrie horizontale d'une image RGB")
+    print("11. Symétrie verticale d'une image RGB")
+    print("12. Convertir une image RGB en niveaux de gris")
+    print("13. Quitter")
+
+    choix = int(input("Veuillez choisir une option: "))
+    return choix
+
+
+while True:
+    choix = menu()
+    if choix == 13:
+        print("Au revoir!")
+        break
+
+    elif choix == 1:
+        try:
+            m = input("entrez le chemin d'accès de l'image en suprimant les guillemets ")
+            m = lectureImage(m)
+            afficher_image(m)
+        except:
+            print("image non trouvé, veuillez écrire un chemin d'accés valide ")
+
+    elif choix == 2:
+        h = int(input("Entrez la hauteur de l'image: "))
+        l = int(input("Entrez la largeur de l'image: "))
+        img = image_noir_blanche(h, l)
+        afficher_image(img)
+    elif choix == 3:
+        chemin = input("entrez le chemin d'accès de l'image A en suprimant les guillemets: ")
+        img = lectureImage(chemin)
+        neg = negatif(img)
+        afficher_image(neg)
+    elif choix == 4:
+        chemin = input("entrez le chemin d'accès de l'image en suprimant les guillemets: ")
+        imgA = lectureImage(chemin)
+        afficher_image(imgA)
+    elif choix == 5:
+        chemin = input("entrez le chemin d'accès de l'image en suprimant les guillemets: ")
+        img = lectureImage(chemin)
+        inv = inverser(img)
+        afficher_image(inv)
+    elif choix == 6:
+        chemin = input("entrez le chemin d'accès de l'image en suprimant les guillemets: ")
+        img = lectureImage(chemin)
+        symV = flipH(img)
+        afficher_image(symV)
+    elif choix == 7:
+        try:
+            chemin1 = input("entrez le chemin d'accès de la premiere image en suprimant les guillemets: ")
+            img1 = lectureImage(chemin1)
+            chemin2 = input("entrez le chemin d'accès de la deuxieme image en suprimant les guillemets: ")
+            img2 = lectureImage(chemin2)
+            posV = poserV(img1, img2)
+            afficher_image(posV)
+        except:
+            print("image non trouvé, veuillez écrire un chemin d'accés valide ")
+    elif choix == 8:
+        try:
+            print("les deux images doivent avoir même dimension")
+            chemin1 = input("entrez le chemin d'accès de la premiere image en suprimant les guillemets: ")
+            img1 = lectureImage(chemin1)
+            chemin2 = input("entrez le chemin d'accès de la deuxieme image en suprimant les guillemets: ")
+            img2 = lectureImage(chemin2)
+            posH = poserH(img1, img2)
+            afficher_image(posH)
+        except:
+            print("importez deux images de même dimension par un chemin d'accés valide")
+    elif choix == 9:
+            M = [
+                [[210, 100, 255], [100, 50, 255], [90, 90, 255], [90, 90, 255], [90, 90, 255], [90, 80, 255]],
+                [[190, 255, 89], [201, 255, 29], [200, 255, 100], [100, 255, 90], [20, 255, 200], [100, 255, 80]],
+                [[255, 0, 0], [255, 0, 0], [255, 0, 0], [255, 0, 0], [255, 0, 0], [255, 0, 0]]
+            ]
+
+            print(M[0][1][1])
+            print(M[1][0][1])
+            print(M[2][1][0])
+    elif choix == 10:
+        m = int(input("veuillez déterminer le nombre des lignes"))
+        n = int(input("veuillez déterminer le nombre des colonnes"))
+        imgRGB = initImageRGB(n, m)
+        afficher_image(imgRGB)
+    elif choix == 11:
+        chemin = input("entrez le chemin d'accès de l'image en suprimant les guillemets: ")
+        img = lectureImage(chemin)
+        symH = symetrie_horizontale(img)
+        afficher_image(symH)
+    elif choix == 12:
+        imgRGB = initImageRGB(5, 5)
+        afficher_image(imgRGB)
+        afficher_image(grayscale(imgRGB))
+
+    else:
+        print("Option invalide. Veuillez réessayer.")
