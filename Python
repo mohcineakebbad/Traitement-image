@@ -184,9 +184,9 @@ def menu():
     print("9. l'affichage des valeurs du matrice  M de l'images RGB")
     print("10. Initialiser et renvoyer une image RGB")
     print("11. Symétrie horizontale d'une image RGB")
-    print("11. Symétrie verticale d'une image RGB")
-    print("12. Convertir une image RGB en niveaux de gris")
-    print("13. Quitter")
+    print("12. Symétrie verticale d'une image RGB")
+    print("13. Convertir une image RGB en niveaux de gris")
+    print("14. Quitter")
 
     choix = int(input("Veuillez choisir une option: "))
     return choix
@@ -271,10 +271,19 @@ while True:
         img = lectureImage(chemin)
         symH = symetrie_horizontale(img)
         afficher_image(symH)
-    elif choix == 12:
+    elif choix == 11:
+        chemin = input("entrez le chemin d'accès de l'image en suprimant les guillemets: ")
+        img = lectureImage(chemin)
+        symV = symetrie_verticale(img)
+        afficher_image(symH)
+
+    elif choix == 13:
         imgRGB = initImageRGB(5, 5)
         afficher_image(imgRGB)
         afficher_image(grayscale(imgRGB))
+    elif choix == 13:
+    print("Au revoir!")
+    break
 
     else:
         print("Option invalide. Veuillez réessayer.")
